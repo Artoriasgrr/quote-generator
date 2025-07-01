@@ -9,7 +9,7 @@ const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
 
 const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = "nx+bul2reELWmAUvuPauiQ==Da9LThtxW7KKrufb"; // Update with your API KEY
+const API_KEY = ""; // Update with your API KEY
 
 let isPlaying = false;
 let isPaused = false;
