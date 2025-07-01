@@ -2,8 +2,6 @@
 
 A modern, responsive quote generator built with HTML, Tailwind CSS, and JavaScript. Instantly fetches inspiring quotes from a public API, lets you listen to them in any available voice, copy to clipboard with a progress bar, and share directly to Twitter—all in a beautiful, glassy blue UI, smooth interactions, voice playback, social sharing, and more.
 
-> 🌐 **Live Demo:** [**View Quote Generator**](https://pvm-harshavardhan.github.io/quote-generator/)
-
 ![App Screenshot](./project_screenshot.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
