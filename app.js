@@ -9,7 +9,7 @@ const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
 
 const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = ""; // Update with your API KEY
+const API_KEY = "bMmrp6atoL0ajC3+lR8S5g==ylWZxqHQENgSCDR8";
 
 let isPlaying = false;
 let isPaused = false;
@@ -196,4 +196,22 @@ copyBtn.addEventListener("click", () => {
   setTimeout(() => {
     popup.remove();
   }, 3000); // Remove after 3 second or even less if needed
+});
+
+
+// --------Adding quote downloading feature and multilanguage feature------------
+
+
+const downloadBtn = document.getElementById("download-quote");
+
+
+downloadBtn.addEventListener("click", () => {
+  const quoteBox = document.getElementById("quote-box");
+
+  html2canvas(quoteBox, { backgroundColor: "#ffffff" }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "quote.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
 });
