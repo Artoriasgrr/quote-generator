@@ -9,26 +9,95 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="shortcut icon" href="favlogo.png" type="image/x-icon">
   <style>
+    :root {
+      --bg-color: #8fd3f4;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --secondary-text: #4b5563;
+      --border-color: #d1d5db;
+      --gradient-from: #8fd3f4;
+      --gradient-via: #b3e0ff;
+      --gradient-to: #8fd3f4;
+    }
+
+    .dark {
+      --bg-color: #1a202c;
+      --card-bg: #2d3748;
+      --text-color: #e2e8f0;
+      --secondary-text: #a0aec0;
+      --border-color: #4a5568;
+      --quote-bg: #2d3748;
+      --button-bg: #4a5568;
+      --button-hover: #4a5568;
+      --category-bg: #2d3748;
+      --category-border: #4a5568;
+      --gradient-from: #1a202c;
+      --gradient-via: #2d3748;
+      --gradient-to: #1a202c;
+    }
+
     body {
-      background: #8fd3f4;
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
+    }
+
+    /* Main container styles */
+    body {
+      background: linear-gradient(to bottom right, var(--gradient-from), var(--gradient-via), var(--gradient-to)) !important;
+      background-attachment: fixed;
+    }
+
+    /* Card and element styles */
+    #quote-box, .bg-white, .bg-blue-100, .border-blue-100, .border-blue-200, .bg-blue-50, .bg-blue-100, .bg-blue-200, .bg-blue-500, .bg-blue-700, .hover\:bg-blue-200, .hover\:from-blue-600, .hover\:to-blue-800 {
+      background-color: var(--card-bg) !important;
+      color: var(--text-color) !important;
+      border-color: var(--border-color) !important;
+    }
+
+    /* Gradient overrides */
+    .bg-gradient-to-r {
+      background: var(--card-bg) !important;
+    }
+    
+    .from-blue-200, .via-blue-100, .to-blue-300, .from-blue-500, .to-blue-700 {
+      background-color: transparent !important;
+    }
+
+    .text-gray-900, .text-gray-800, .text-gray-600, .text-blue-700 {
+      color: var(--text-color) !important;
+    }
+
+    #category {
+      background-color: var(--category-bg) !important;
+      border-color: var(--category-border) !important;
+      color: var(--text-color) !important;
+    }
+
+    #quote, #author {
+      color: var(--text-color);
     }
 
     #voice-select::-webkit-scrollbar {
       width: 6px;
-      background: #e5e7eb;
+      background: var(--border-color);
     }
 
     #voice-select::-webkit-scrollbar-thumb {
-      background: #a0aec0;
+      background: var(--secondary-text);
       border-radius: 3px;
     }
   </style>
 </head>
 
-<body
-  class="min-h-screen flex items-center justify-center font-sans bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300">
+<body class="min-h-screen flex items-center justify-center font-sans">
   <div
     class="relative bg-white p-6 rounded-xl shadow-xl max-w-2xl w-full flex flex-col items-center border border-blue-100">
+    <div class="absolute top-4 right-4">
+      <button id="theme-toggle" class="p-2 rounded-full bg-blue-100 dark:bg-gray-700 text-blue-700 dark:text-yellow-300 hover:bg-blue-200 dark:hover:bg-gray-600 transition-colors">
+        <i class="fa-solid fa-moon dark:hidden"></i>
+        <i class="fa-solid fa-sun hidden dark:inline"></i>
+      </button>
+    </div>
     <div class="w-full flex flex-col gap-2 mb-4">
       <div class="py-1 px-6 font-medium bg-blue-100 rounded-2xl w-max border border-blue-800 border-dashed" id="category">MOVIES</div>
       <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Quote of the Day</h1>
@@ -70,6 +139,23 @@
       </div>
     </div>
   </div>
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // Check for saved user preference, if any, on load
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Toggle theme on button click
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    });
+  </script>
   <script src="app.js"></script>
   </body>
   
