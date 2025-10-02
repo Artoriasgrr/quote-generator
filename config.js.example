@@ -1,0 +1,3 @@
+// Rename this file to config.js and add your API key below
+// This file should NOT be committed to version control
+// window.QUOTE_API_KEY = "YOUR_API_KEY_HERE";

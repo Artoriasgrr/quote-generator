@@ -9,7 +9,18 @@ const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
 
 const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = ""; // Update with your API KEY
+// API_KEY is now loaded from config.js (excluded from version control)
+let API_KEY = undefined;
+try {
+  // config.js should export window.QUOTE_API_KEY
+  if (window.QUOTE_API_KEY) {
+    API_KEY = window.QUOTE_API_KEY;
+  } else {
+    throw new Error("API key not found. Please set window.QUOTE_API_KEY in config.js.");
+  }
+} catch (e) {
+  API_KEY = undefined;
+}
 
 let isPlaying = false;
 let isPaused = false;
@@ -21,7 +32,17 @@ function setListenIcon(isPlaying) {
     : '<i class="fa-solid fa-volume-high"></i>';
 }
 
+let fetchTimeout = null;
 async function fetchQuote() {
+  if (!API_KEY) {
+    quoteText.textContent = "API key missing. Please add your API key in config.js.";
+    authorText.textContent = "";
+    document.getElementById("category").textContent = "";
+    listenBtn.disabled = true;
+    shareBtn.disabled = true;
+    setListenIcon(false);
+    return;
+  }
   quoteText.textContent = "Loading...";
   authorText.textContent = "";
   const categoryRibbon = document.getElementById("category");
@@ -50,7 +71,7 @@ async function fetchQuote() {
       utterance = null;
     }
   } catch (error) {
-    quoteText.textContent = "Could not fetch quote. Please try again.";
+    quoteText.textContent = `Could not fetch quote. ${error.message || "Please try again."}`;
     authorText.textContent = "";
     categoryRibbon.textContent = "";
     listenBtn.disabled = true;
@@ -65,7 +86,12 @@ async function fetchQuote() {
   }
 }
 
+// Debounce new quote button
+let lastFetch = 0;
 newQuoteBtn.addEventListener("click", () => {
+  const now = Date.now();
+  if (now - lastFetch < 1000) return; // 1s debounce
+  lastFetch = now;
   window.speechSynthesis.cancel();
   isPlaying = false;
   isPaused = false;
@@ -82,8 +108,8 @@ function populateVoices() {
   voices.forEach((voice, i) => {
     const option = document.createElement("option");
     option.value = i;
-    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""
-      }`;
+    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""}`;
+    option.setAttribute("aria-label", `${voice.name} ${voice.lang}${voice.default ? " default" : ""}`);
     voiceSelect.appendChild(option);
   });
 }
@@ -135,6 +161,7 @@ listenBtn.addEventListener("click", () => {
     resumeSpeech();
   }
 });
+listenBtn.setAttribute("aria-label", "Play or pause quote audio");
 
 // --- Voice Change: Replay if playing/paused ---
 voiceSelect.addEventListener("change", () => {
@@ -161,11 +188,10 @@ shareBtn.addEventListener("click", () => {
   const quote = quoteText.textContent;
   const author = authorText.textContent;
   const tweet = `${quote} ${author}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-    tweet
-  )}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
   window.open(twitterUrl, "_blank");
 });
+shareBtn.setAttribute("aria-label", "Share quote on Twitter");
 
 // --- Copy to Clipboard with Timed Popup ---
 copyBtn.addEventListener("click", () => {
@@ -177,14 +203,16 @@ copyBtn.addEventListener("click", () => {
   // Create popup
   let popup = document.createElement("div");
   popup.innerHTML = `
-    <i class="fa-solid fa-circle-check mr-2"></i>
-    Copied to clipboard!
+    <i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>
+    <span>Copied to clipboard!</span>
     <div class="w-36 h-1 bg-gray-500 rounded mt-2 overflow-hidden">
       <div id="copy-progress" class="h-full bg-gray-100" style="width: 0%; transition: width 3s linear;"></div>
     </div>
   `;
   popup.className =
     "fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 text-lg flex flex-col items-center opacity-100 min-w-[220px]";
+  popup.setAttribute("role", "status");
+  popup.setAttribute("aria-live", "polite");
   document.body.appendChild(popup);
 
   // Animate progress bar immediately
@@ -195,5 +223,6 @@ copyBtn.addEventListener("click", () => {
   // Remove popup immediately (no fade)
   setTimeout(() => {
     popup.remove();
-  }, 3000); // Remove after 3 second or even less if needed
+  }, 3000);
 });
+copyBtn.setAttribute("aria-label", "Copy quote to clipboard");
