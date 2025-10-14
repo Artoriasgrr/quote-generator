@@ -1,3 +1,4 @@
+// --- DOM Elements ---
 const quoteText = document.getElementById("quote");
 const authorText = document.getElementById("author");
 const newQuoteBtn = document.getElementById("new-quote");
@@ -7,44 +8,76 @@ const shareBtn = document.getElementById("share-quote");
 const listenIcon = document.getElementById("listen-icon");
 const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
+const authorFilter = document.getElementById("author-filter");
 
-const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = ""; // Update with your API KEY
+const API_URL = "http://localhost:3000/quotes/random"; // adjust for deployment
 
 let isPlaying = false;
 let isPaused = false;
 let utterance = null;
 
+// --- Helper: Set Listen Icon ---
 function setListenIcon(isPlaying) {
   listenIcon.innerHTML = isPlaying
     ? '<i class="fa-solid fa-volume-xmark"></i>'
     : '<i class="fa-solid fa-volume-high"></i>';
 }
 
+// --- Populate Authors Dropdown ---
+async function populateAuthors() {
+  try {
+    const response = await fetch("http://localhost:3000/quotes");
+    const allQuotes = await response.json();
+    const authors = [...new Set(allQuotes.map(q => q.author || "Unknown"))];
+
+    authors.forEach(author => {
+      const option = document.createElement("option");
+      option.value = author;
+      option.textContent = author;
+      authorFilter.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Failed to fetch authors:", error);
+  }
+}
+
+// --- Fetch Quote (with optional author filter) ---
 async function fetchQuote() {
   quoteText.textContent = "Loading...";
   authorText.textContent = "";
-  const categoryRibbon = document.getElementById("category");
+  const categoryRibbon = categoryLabel;
   categoryRibbon.textContent = "";
+
   try {
-    const response = await fetch(API_URL, {
-      headers: {
-        "X-Api-Key": API_KEY,
-      },
-    });
-    if (!response.ok) throw new Error("Failed to fetch quote");
-    const data = await response.json();
-    const quote = data[0];
-    quoteText.textContent = `"${quote.quote}"`;
+    const selectedAuthor = authorFilter.value;
+    let quote;
+
+    if (selectedAuthor) {
+      const responseAll = await fetch("http://localhost:3000/quotes");
+      const allQuotes = await responseAll.json();
+      const filteredQuotes = allQuotes.filter(q => q.author === selectedAuthor);
+      if (filteredQuotes.length === 0) throw new Error("No quotes for this author");
+      const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
+      quote = filteredQuotes[randomIndex];
+      
+    } else {
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("Failed to fetch quote");
+      quote = await response.json();
+    }
+
+    quoteText.textContent = `"${quote.text}"`;
     authorText.textContent = `- ${quote.author || "Unknown"}`;
     categoryRibbon.textContent = quote.category
       ? quote.category.toUpperCase()
       : "GENERAL";
+
     listenBtn.disabled = false;
     shareBtn.disabled = false;
     setListenIcon(false);
     isPlaying = false;
     isPaused = false;
+
     if (utterance) {
       window.speechSynthesis.cancel();
       utterance = null;
@@ -58,6 +91,7 @@ async function fetchQuote() {
     setListenIcon(false);
     isPlaying = false;
     isPaused = false;
+
     if (utterance) {
       window.speechSynthesis.cancel();
       utterance = null;
@@ -65,25 +99,14 @@ async function fetchQuote() {
   }
 }
 
-newQuoteBtn.addEventListener("click", () => {
-  window.speechSynthesis.cancel();
-  isPlaying = false;
-  isPaused = false;
-  setListenIcon(false);
-  fetchQuote();
-});
-
-// Fetch a quote on initial load
-fetchQuote();
-
+// --- Voice Population ---
 function populateVoices() {
   const voices = window.speechSynthesis.getVoices();
   voiceSelect.innerHTML = "";
   voices.forEach((voice, i) => {
     const option = document.createElement("option");
     option.value = i;
-    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""
-      }`;
+    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""}`;
     voiceSelect.appendChild(option);
   });
 }
@@ -93,7 +116,7 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.onvoiceschanged = populateVoices;
 }
 
-// --- Unified Speech Functions ---
+// --- Speech Functions ---
 function playQuoteWithSelectedVoice() {
   const text = `${quoteText.textContent} ${authorText.textContent}`;
   utterance = new SpeechSynthesisUtterance(text);
@@ -125,7 +148,23 @@ function resumeSpeech() {
   setListenIcon(true);
 }
 
-// --- Listen Button ---
+// --- Event Listeners ---
+newQuoteBtn.addEventListener("click", () => {
+  window.speechSynthesis.cancel();
+  isPlaying = false;
+  isPaused = false;
+  setListenIcon(false);
+  fetchQuote();
+});
+
+authorFilter.addEventListener("change", () => {
+  window.speechSynthesis.cancel();
+  isPlaying = false;
+  isPaused = false;
+  setListenIcon(false);
+  fetchQuote();
+});
+
 listenBtn.addEventListener("click", () => {
   if (!isPlaying && !isPaused) {
     playQuoteWithSelectedVoice();
@@ -136,7 +175,6 @@ listenBtn.addEventListener("click", () => {
   }
 });
 
-// --- Voice Change: Replay if playing/paused ---
 voiceSelect.addEventListener("change", () => {
   if (isPlaying || isPaused) {
     window.speechSynthesis.cancel();
@@ -147,34 +185,23 @@ voiceSelect.addEventListener("change", () => {
   }
 });
 
-// --- Pause on Tab Hide ---
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && isPlaying) {
-    pauseSpeech();
-  }
+  if (document.hidden && isPlaying) pauseSpeech();
 });
 
 document.addEventListener("DOMContentLoaded", () => setListenIcon(false));
 
 // --- Share to Twitter ---
 shareBtn.addEventListener("click", () => {
-  const quote = quoteText.textContent;
-  const author = authorText.textContent;
-  const tweet = `${quote} ${author}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-    tweet
-  )}`;
-  window.open(twitterUrl, "_blank");
+  const tweet = `${quoteText.textContent} ${authorText.textContent}`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, "_blank");
 });
 
-// --- Copy to Clipboard with Timed Popup ---
+// --- Copy to Clipboard ---
 copyBtn.addEventListener("click", () => {
-  const quote = quoteText.textContent;
-  const author = authorText.textContent;
-  const text = `${quote} ${author}`;
+  const text = `${quoteText.textContent} ${authorText.textContent}`;
   navigator.clipboard.writeText(text);
 
-  // Create popup
   let popup = document.createElement("div");
   popup.innerHTML = `
     <i class="fa-solid fa-circle-check mr-2"></i>
@@ -187,13 +214,13 @@ copyBtn.addEventListener("click", () => {
     "fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 text-lg flex flex-col items-center opacity-100 min-w-[220px]";
   document.body.appendChild(popup);
 
-  // Animate progress bar immediately
   const progress = popup.querySelector("#copy-progress");
-  void progress.offsetWidth; // Force reflow
-  progress.style.width = "100%"; // Start animation
+  void progress.offsetWidth;
+  progress.style.width = "100%";
 
-  // Remove popup immediately (no fade)
-  setTimeout(() => {
-    popup.remove();
-  }, 3000); // Remove after 3 second or even less if needed
+  setTimeout(() => popup.remove(), 3000);
 });
+
+// --- Initialize ---
+populateAuthors();
+fetchQuote();
