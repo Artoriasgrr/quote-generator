@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition-colors duration-500">
 
 <head>
   <meta charset="UTF-8">
@@ -8,9 +8,15 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="shortcut icon" href="favlogo.png" type="image/x-icon">
+
   <style>
     body {
       background: #8fd3f4;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    .dark body {
+      background: #1e293b;
     }
 
     #voice-select::-webkit-scrollbar {
@@ -26,40 +32,59 @@
 </head>
 
 <body
-  class="min-h-screen flex items-center justify-center font-sans bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300">
+  class="min-h-screen flex items-center justify-center font-sans bg-gradient-to-br from-blue-200 via-blue-100 to-blue-300 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500">
+
   <div
-    class="relative bg-white p-6 rounded-xl shadow-xl max-w-2xl w-full flex flex-col items-center border border-blue-100">
-    <div class="w-full flex flex-col gap-2 mb-4">
-      <div class="py-1 px-6 font-medium bg-blue-100 rounded-2xl w-max border border-blue-800 border-dashed" id="category">MOVIES</div>
-      <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Quote of the Day</h1>
-      </div>
-    <div id="quote-box" class="mb-8 w-full flex flex-col items-center">
-      <p id="quote" class="text-xl sm:text-2xl italic text-gray-800 mb-6 leading-relaxed text-center">Loading...</p>
-      <p id="author" class="text-md text-gray-600 text-right w-full pr-2 font-medium italic"></p>
+    class="relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl max-w-2xl w-full flex flex-col items-center border border-blue-100 dark:border-gray-700 transition-all duration-500">
+
+    <!-- Top Section -->
+    <div class="w-full flex justify-between items-center mb-4">
+      <div class="py-1 px-6 font-medium bg-blue-100 dark:bg-gray-700 dark:text-gray-100 rounded-2xl w-max border border-blue-800 border-dashed"
+        id="category">MOVIES</div>
+
+      <!-- 🌙 Dark Mode Toggle -->
+      <button id="theme-toggle"
+        class="bg-blue-100 dark:bg-gray-700 text-blue-700 dark:text-yellow-300 font-semibold px-3 py-2 rounded-full shadow hover:scale-110 transition transform focus:ring-2 focus:ring-blue-300">
+        <i id="theme-icon" class="fa-solid fa-moon"></i>
+      </button>
     </div>
-    <hr class="w-full border-t border-gray-200 mb-4" />
-    <div class="w-full max-w-3xl mx-auto bg-white p-4 sm:p-6 sm:py-2 rounded-lg shadow-lg mt-2">
+
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-gray-100 text-center mb-2">
+      Quote of the Day
+    </h1>
+
+    <div id="quote-box" class="mb-8 w-full flex flex-col items-center">
+      <p id="quote"
+        class="text-xl sm:text-2xl italic text-gray-800 dark:text-gray-200 mb-6 leading-relaxed text-center">Loading...</p>
+      <p id="author" class="text-md text-gray-600 dark:text-gray-400 text-right w-full pr-2 font-medium italic"></p>
+    </div>
+
+    <hr class="w-full border-t border-gray-200 dark:border-gray-600 mb-4" />
+
+    <div class="w-full max-w-3xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-6 sm:py-2 rounded-lg shadow-lg mt-2">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-         
           <div class="flex gap-2 w-full sm:w-auto">
             <select id="voice-select"
-              class="min-w-[100px] max-w-[100px] rounded-md px-3 py-2 bg-blue-50 text-blue-700 font-semibold border border-blue-200 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none transition w-full"></select>
+              class="min-w-[100px] max-w-[100px] rounded-md px-3 py-2 bg-blue-50 dark:bg-gray-700 text-blue-700 dark:text-gray-200 font-semibold border border-blue-200 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none transition w-full"></select>
             <button id="listen-quote" aria-label="Play/Pause"
-              class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-3 py-2  transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
+              class="bg-blue-100 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600 text-blue-700 dark:text-gray-200 font-semibold px-3 py-2 transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
               <span id="listen-icon"><i class="fa-solid fa-play fa-lg"></i></span>
-            </button>    </div>
-          <div class="flex justify-center  gap-2">
+            </button>
+          </div>
+
+          <div class="flex justify-center gap-2">
             <button id="share-quote" aria-label="Share"
-              class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-3 py-2  transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
+              class="bg-blue-100 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600 text-blue-700 dark:text-gray-200 font-semibold px-3 py-2 transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
               <i class="fa-brands fa-x-twitter"></i>
             </button>
             <button id="copy-quote" aria-label="Copy"
-              class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold px-3 py-2  transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
+              class="bg-blue-100 dark:bg-gray-700 hover:bg-blue-200 dark:hover:bg-gray-600 text-blue-700 dark:text-gray-200 font-semibold px-3 py-2 transition flex items-center justify-center focus:ring-2 focus:ring-blue-300 focus:outline-none rounded-3xl">
               <i class="fa-regular fa-clipboard text-xl"></i>
             </button>
           </div>
         </div>
+
         <div class="flex items-center justify-center w-full sm:w-auto">
           <button id="new-quote"
             class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow transition focus:ring-2 focus:ring-blue-300 focus:outline-none w-full sm:w-auto justify-center">
@@ -70,7 +95,8 @@
       </div>
     </div>
   </div>
+
   <script src="app.js"></script>
-  </body>
-  
-  </html>
+</body>
+
+</html>

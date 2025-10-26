@@ -7,14 +7,32 @@ const shareBtn = document.getElementById("share-quote");
 const listenIcon = document.getElementById("listen-icon");
 const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
+const themeToggle = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
 
 const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = ""; // Update with your API KEY
+const API_KEY = ""; // 🔑 Add your API key here
 
 let isPlaying = false;
 let isPaused = false;
 let utterance = null;
 
+// --- 🌙 Theme Toggle Logic ---
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "dark") {
+  document.documentElement.classList.add("dark");
+  themeIcon.classList.replace("fa-moon", "fa-sun");
+}
+
+themeToggle.addEventListener("click", () => {
+  document.documentElement.classList.toggle("dark");
+  const isDark = document.documentElement.classList.contains("dark");
+  themeIcon.classList.toggle("fa-moon", !isDark);
+  themeIcon.classList.toggle("fa-sun", isDark);
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+
+// --- 🔊 Quote Fetching Logic ---
 function setListenIcon(isPlaying) {
   listenIcon.innerHTML = isPlaying
     ? '<i class="fa-solid fa-volume-xmark"></i>'
@@ -24,44 +42,33 @@ function setListenIcon(isPlaying) {
 async function fetchQuote() {
   quoteText.textContent = "Loading...";
   authorText.textContent = "";
-  const categoryRibbon = document.getElementById("category");
-  categoryRibbon.textContent = "";
+  categoryLabel.textContent = "";
   try {
     const response = await fetch(API_URL, {
-      headers: {
-        "X-Api-Key": API_KEY,
-      },
+      headers: { "X-Api-Key": API_KEY },
     });
     if (!response.ok) throw new Error("Failed to fetch quote");
     const data = await response.json();
     const quote = data[0];
     quoteText.textContent = `"${quote.quote}"`;
     authorText.textContent = `- ${quote.author || "Unknown"}`;
-    categoryRibbon.textContent = quote.category
+    categoryLabel.textContent = quote.category
       ? quote.category.toUpperCase()
       : "GENERAL";
+
     listenBtn.disabled = false;
     shareBtn.disabled = false;
     setListenIcon(false);
     isPlaying = false;
     isPaused = false;
-    if (utterance) {
-      window.speechSynthesis.cancel();
-      utterance = null;
-    }
-  } catch (error) {
+    if (utterance) window.speechSynthesis.cancel();
+  } catch {
     quoteText.textContent = "Could not fetch quote. Please try again.";
     authorText.textContent = "";
-    categoryRibbon.textContent = "";
+    categoryLabel.textContent = "";
     listenBtn.disabled = true;
     shareBtn.disabled = true;
     setListenIcon(false);
-    isPlaying = false;
-    isPaused = false;
-    if (utterance) {
-      window.speechSynthesis.cancel();
-      utterance = null;
-    }
   }
 }
 
@@ -73,17 +80,16 @@ newQuoteBtn.addEventListener("click", () => {
   fetchQuote();
 });
 
-// Fetch a quote on initial load
 fetchQuote();
 
+// --- 🗣️ Speech Functions ---
 function populateVoices() {
   const voices = window.speechSynthesis.getVoices();
   voiceSelect.innerHTML = "";
   voices.forEach((voice, i) => {
     const option = document.createElement("option");
     option.value = i;
-    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""
-      }`;
+    option.textContent = `${voice.name} (${voice.lang})${voice.default ? " [default]" : ""}`;
     voiceSelect.appendChild(option);
   });
 }
@@ -93,13 +99,11 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.onvoiceschanged = populateVoices;
 }
 
-// --- Unified Speech Functions ---
 function playQuoteWithSelectedVoice() {
   const text = `${quoteText.textContent} ${authorText.textContent}`;
   utterance = new SpeechSynthesisUtterance(text);
   const voices = window.speechSynthesis.getVoices();
-  const selectedVoice = voices[voiceSelect.value] || voices[0];
-  utterance.voice = selectedVoice;
+  utterance.voice = voices[voiceSelect.value] || voices[0];
   utterance.onend = () => {
     isPlaying = false;
     isPaused = false;
@@ -107,36 +111,24 @@ function playQuoteWithSelectedVoice() {
   };
   window.speechSynthesis.speak(utterance);
   isPlaying = true;
-  isPaused = false;
   setListenIcon(true);
 }
 
-function pauseSpeech() {
-  window.speechSynthesis.pause();
-  isPlaying = false;
-  isPaused = true;
-  setListenIcon(false);
-}
-
-function resumeSpeech() {
-  window.speechSynthesis.resume();
-  isPlaying = true;
-  isPaused = false;
-  setListenIcon(true);
-}
-
-// --- Listen Button ---
 listenBtn.addEventListener("click", () => {
-  if (!isPlaying && !isPaused) {
-    playQuoteWithSelectedVoice();
-  } else if (isPlaying) {
-    pauseSpeech();
+  if (!isPlaying && !isPaused) playQuoteWithSelectedVoice();
+  else if (isPlaying) {
+    window.speechSynthesis.pause();
+    isPaused = true;
+    isPlaying = false;
+    setListenIcon(false);
   } else if (isPaused) {
-    resumeSpeech();
+    window.speechSynthesis.resume();
+    isPaused = false;
+    isPlaying = true;
+    setListenIcon(true);
   }
 });
 
-// --- Voice Change: Replay if playing/paused ---
 voiceSelect.addEventListener("change", () => {
   if (isPlaying || isPaused) {
     window.speechSynthesis.cancel();
@@ -147,53 +139,37 @@ voiceSelect.addEventListener("change", () => {
   }
 });
 
-// --- Pause on Tab Hide ---
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && isPlaying) {
-    pauseSpeech();
+    window.speechSynthesis.pause();
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => setListenIcon(false));
-
-// --- Share to Twitter ---
+// --- 🐦 Share to Twitter ---
 shareBtn.addEventListener("click", () => {
-  const quote = quoteText.textContent;
-  const author = authorText.textContent;
-  const tweet = `${quote} ${author}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-    tweet
-  )}`;
+  const tweet = `${quoteText.textContent} ${authorText.textContent}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`;
   window.open(twitterUrl, "_blank");
 });
 
-// --- Copy to Clipboard with Timed Popup ---
+// --- 📋 Copy to Clipboard ---
 copyBtn.addEventListener("click", () => {
-  const quote = quoteText.textContent;
-  const author = authorText.textContent;
-  const text = `${quote} ${author}`;
+  const text = `${quoteText.textContent} ${authorText.textContent}`;
   navigator.clipboard.writeText(text);
 
-  // Create popup
   let popup = document.createElement("div");
   popup.innerHTML = `
     <i class="fa-solid fa-circle-check mr-2"></i>
     Copied to clipboard!
     <div class="w-36 h-1 bg-gray-500 rounded mt-2 overflow-hidden">
       <div id="copy-progress" class="h-full bg-gray-100" style="width: 0%; transition: width 3s linear;"></div>
-    </div>
-  `;
+    </div>`;
   popup.className =
     "fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 text-lg flex flex-col items-center opacity-100 min-w-[220px]";
   document.body.appendChild(popup);
 
-  // Animate progress bar immediately
   const progress = popup.querySelector("#copy-progress");
-  void progress.offsetWidth; // Force reflow
-  progress.style.width = "100%"; // Start animation
-
-  // Remove popup immediately (no fade)
-  setTimeout(() => {
-    popup.remove();
-  }, 3000); // Remove after 3 second or even less if needed
+  void progress.offsetWidth;
+  progress.style.width = "100%";
+  setTimeout(() => popup.remove(), 3000);
 });
