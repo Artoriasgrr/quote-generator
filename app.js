@@ -9,7 +9,8 @@ const voiceSelect = document.getElementById("voice-select");
 const copyBtn = document.getElementById("copy-quote");
 
 const API_URL = "https://api.api-ninjas.com/v1/quotes";
-const API_KEY = ""; // Update with your API KEY
+// const API_KEY = ""; // Update with your API KEY
+//create a .env file and add your API key as API_NINJAS_KEY=your_api_key
 
 let isPlaying = false;
 let isPaused = false;
@@ -27,11 +28,13 @@ async function fetchQuote() {
   const categoryRibbon = document.getElementById("category");
   categoryRibbon.textContent = "";
   try {
-    const response = await fetch(API_URL, {
-      headers: {
-        "X-Api-Key": API_KEY,
-      },
-    });
+    // const response = await fetch(API_URL, {
+    //   headers: {
+    //     "X-Api-Key":API_KEY,
+    //   },
+    // });
+    // Instead of this commented code, using a local server to avoid CORS issues
+    const response = await fetch("http://localhost:3000/quote");
     if (!response.ok) throw new Error("Failed to fetch quote");
     const data = await response.json();
     const quote = data[0];
