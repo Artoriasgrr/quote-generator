@@ -34,7 +34,7 @@
       <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center">Quote of the Day</h1>
       </div>
     <div id="quote-box" class="mb-8 w-full flex flex-col items-center">
-      <p id="quote" class="text-xl sm:text-2xl italic text-gray-800 mb-6 leading-relaxed text-center">Loading...</p>
+      <p id="quote" class="text-xl sm:text-2xl italic text-gray-800 mb-6 leading-relaxed text-center">Click on New Quote</p>
       <p id="author" class="text-md text-gray-600 text-right w-full pr-2 font-medium italic"></p>
     </div>
     <hr class="w-full border-t border-gray-200 mb-4" />
@@ -66,6 +66,13 @@
             <span>New Quote</span>
             <i class="fa-solid fa-arrows-rotate"></i>
           </button>
+          <script>
+            document.getElementById("new-quote").addEventListener("click",async ()=>{
+              const res = await fetch("http://localhost:3000/quote");
+              const data = await res.json();
+              document.getElementById("quote").textContent = data[0].quote;
+            })
+          </script>
         </div>
       </div>
     </div>
